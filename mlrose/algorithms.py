@@ -216,6 +216,7 @@ def random_hill_climb(problem, max_attempts=10, max_iters=np.inf, restarts=0,
 
         attempts = 0
         iters = 0
+        start_time = timeit.default_timer()
 
         while (attempts < max_attempts) and (iters < max_iters):
             iters += 1
@@ -335,6 +336,7 @@ def simulated_annealing(problem, schedule=GeomDecay(), max_attempts=10,
 
     attempts = 0
     iters = 0
+    start_time = timeit.default_timer()
 
     while (attempts < max_attempts) and (iters < max_iters):
         temp = schedule.evaluate(iters)
@@ -460,6 +462,7 @@ def genetic_alg(problem, pop_size=200, mutation_prob=0.1, max_attempts=10,
     problem.random_pop(pop_size)
     attempts = 0
     iters = 0
+    start_time = timeit.default_timer()
 
     while (attempts < max_attempts) and (iters < max_iters):
         iters += 1
@@ -613,6 +616,7 @@ def mimic(problem, pop_size=200, keep_pct=0.2, max_attempts=10,
     problem.random_pop(pop_size)
     attempts = 0
     iters = 0
+    start_time = timeit.default_timer()
 
     while (attempts < max_attempts) and (iters < max_iters):
         iters += 1
