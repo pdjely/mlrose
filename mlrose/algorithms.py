@@ -259,7 +259,7 @@ def random_hill_climb(problem, max_attempts=10, max_iters=np.inf, restarts=0,
 
 def simulated_annealing(problem, schedule=GeomDecay(), max_attempts=10,
                         max_iters=np.inf, init_state=None, curve=False,
-                        random_state=None):
+                        timing=False, random_state=None):
     """Use simulated annealing to find the optimum for a given
     optimization problem.
 
@@ -372,13 +372,19 @@ def simulated_annealing(problem, schedule=GeomDecay(), max_attempts=10,
     best_state = problem.get_state()
 
     if curve:
-        return best_state, best_fitness, np.asarray(fitness_curve)
+        fitness_curve = np.asarray(fitness_curve)
+        if timing:
+            return best_state, best_fitness, np.hstack((np.asarray(timings).reshape(-1,1),
+                                                       fitness_curve.reshape(-1, 1)))
+        else:
+            return best_state, best_fitness, fitness_curve
 
     return best_state, best_fitness
 
 
 def genetic_alg(problem, pop_size=200, mutation_prob=0.1, max_attempts=10,
-                max_iters=np.inf, curve=False, random_state=None):
+                max_iters=np.inf, curve=False, timing=False,
+                random_state=None):
     """Use a standard genetic algorithm to find the optimum for a given
     optimization problem.
 
@@ -519,7 +525,8 @@ def genetic_alg(problem, pop_size=200, mutation_prob=0.1, max_attempts=10,
 
 
 def mimic(problem, pop_size=200, keep_pct=0.2, max_attempts=10,
-          max_iters=np.inf, curve=False, random_state=None, fast_mimic=False):
+          max_iters=np.inf, curve=False, timing=False,
+          random_state=None, fast_mimic=False):
     """Use MIMIC to find the optimum for a given optimization problem.
 
     Parameters
