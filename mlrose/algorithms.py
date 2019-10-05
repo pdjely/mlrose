@@ -6,10 +6,11 @@
 
 import numpy as np
 from .decay import GeomDecay
+import timeit
 
 
 def hill_climb(problem, max_iters=np.inf, restarts=0, init_state=None,
-               curve=False, random_state=None):
+               curve=False, timing=False, random_state=None):
     """Use standard hill climbing to find the optimum for a given
     optimization problem.
 
@@ -31,6 +32,12 @@ def hill_climb(problem, max_iters=np.inf, restarts=0, init_state=None,
         If :code:`False`, then no curve is stored.
         If :code:`True`, then a history of fitness values is provided as a
         third return value.
+    timing: bool, default: False
+        Boolean to return fitness values per wall clock time elapsed. If this
+        option is True, then curve will automatically be set to True. 
+        If :code: `False`, then only fitness scores are returned as an np.array
+        If :code:`True`, then a 2d array is returned with time in first col and 
+        fitness in second column.
     random_state: int, default: None
         If random_state is a positive integer, random_state is the seed used
         by np.random.seed(); otherwise, the random seed is not set.
@@ -68,6 +75,9 @@ def hill_climb(problem, max_iters=np.inf, restarts=0, init_state=None,
     best_fitness = -1*np.inf
     best_state = None
 
+    if timing:
+        timings = []
+        curve = True
     if curve:
         fitness_curve = []
 
@@ -79,7 +89,7 @@ def hill_climb(problem, max_iters=np.inf, restarts=0, init_state=None,
             problem.set_state(init_state)
 
         iters = 0
-
+        start_time = timeit.default_timer()
         while iters < max_iters:
             iters += 1
 
@@ -102,17 +112,25 @@ def hill_climb(problem, max_iters=np.inf, restarts=0, init_state=None,
 
         if curve:
             fitness_curve.append(problem.get_fitness())
+        if timing:
+            timings.append(timeit.default_timer() - start_time)
 
     best_fitness = problem.get_maximize()*best_fitness
 
     if curve:
-        return best_state, best_fitness, np.asarray(fitness_curve)
+        fitness_curve = np.asarray(fitness_curve)
+        if timing:
+            return best_state, best_fitness, np.hstack((np.asarray(timings).reshape(-1,1),
+                                                       fitness_curve.reshape(-1, 1)))
+        else:
+            return best_state, best_fitness, fitness_curve
 
     return best_state, best_fitness
 
 
 def random_hill_climb(problem, max_attempts=10, max_iters=np.inf, restarts=0,
-                      init_state=None, curve=False, random_state=None):
+                      init_state=None, curve=False, timing=False,
+                      random_state=None):
     """Use randomized hill climbing to find the optimum for a given
     optimization problem.
 
@@ -136,6 +154,12 @@ def random_hill_climb(problem, max_attempts=10, max_iters=np.inf, restarts=0,
         If :code:`False`, then no curve is stored.
         If :code:`True`, then a history of fitness values is provided as a
         third return value.
+    timing: bool, default: False
+        Boolean to return fitness values per wall clock time elapsed. If this
+        option is True, then curve will automatically be set to True. 
+        If :code: `False`, then only fitness scores are returned as an np.array
+        If :code:`True`, then a 2d array is returned with time in first col and 
+        fitness in second column.
     random_state: int, default: None
         If random_state is a positive integer, random_state is the seed used
         by np.random.seed(); otherwise, the random seed is not set.
@@ -177,6 +201,9 @@ def random_hill_climb(problem, max_attempts=10, max_iters=np.inf, restarts=0,
     best_fitness = -1*np.inf
     best_state = None
 
+    if timing:
+        timings = []
+        curve = True
     if curve:
         fitness_curve = []
 
@@ -208,6 +235,8 @@ def random_hill_climb(problem, max_attempts=10, max_iters=np.inf, restarts=0,
 
             if curve:
                 fitness_curve.append(problem.get_fitness())
+            if timing:
+                timings.append(timeit.default_timer() - start_time)
 
         # Update best state and best fitness
         if problem.get_fitness() > best_fitness:
@@ -217,7 +246,12 @@ def random_hill_climb(problem, max_attempts=10, max_iters=np.inf, restarts=0,
     best_fitness = problem.get_maximize()*best_fitness
 
     if curve:
-        return best_state, best_fitness, np.asarray(fitness_curve)
+        fitness_curve = np.asarray(fitness_curve)
+        if timing:
+            return best_state, best_fitness, np.hstack((np.asarray(timings).reshape(-1,1),
+                                                       fitness_curve.reshape(-1, 1)))
+        else:
+            return best_state, best_fitness, fitness_curve
 
     return best_state, best_fitness
 
@@ -248,6 +282,12 @@ def simulated_annealing(problem, schedule=GeomDecay(), max_attempts=10,
         If :code:`False`, then no curve is stored.
         If :code:`True`, then a history of fitness values is provided as a
         third return value.
+    timing: bool, default: False
+        Boolean to return fitness values per wall clock time elapsed. If this
+        option is True, then curve will automatically be set to True. 
+        If :code: `False`, then only fitness scores are returned as an np.array
+        If :code:`True`, then a 2d array is returned with time in first col and 
+        fitness in second column.
     random_state: int, default: None
         If random_state is a positive integer, random_state is the seed used
         by np.random.seed(); otherwise, the random seed is not set.
@@ -287,7 +327,9 @@ def simulated_annealing(problem, schedule=GeomDecay(), max_attempts=10,
         problem.reset()
     else:
         problem.set_state(init_state)
-
+    if timing:
+        timings = []
+        curve = True
     if curve:
         fitness_curve = []
 
@@ -321,6 +363,8 @@ def simulated_annealing(problem, schedule=GeomDecay(), max_attempts=10,
 
         if curve:
             fitness_curve.append(problem.get_fitness())
+        if timing:
+            timings.append(timeit.default_timer() - start_time)
 
     best_fitness = problem.get_maximize()*problem.get_fitness()
     best_state = problem.get_state()
@@ -356,6 +400,12 @@ def genetic_alg(problem, pop_size=200, mutation_prob=0.1, max_attempts=10,
         If :code:`False`, then no curve is stored.
         If :code:`True`, then a history of fitness values is provided as a
         third return value.
+    timing: bool, default: False
+        Boolean to return fitness values per wall clock time elapsed. If this
+        option is True, then curve will automatically be set to True. 
+        If :code: `False`, then only fitness scores are returned as an np.array
+        If :code:`True`, then a 2d array is returned with time in first col and 
+        fitness in second column.
     random_state: int, default: None
         If random_state is a positive integer, random_state is the seed used
         by np.random.seed(); otherwise, the random seed is not set.
@@ -399,6 +449,9 @@ def genetic_alg(problem, pop_size=200, mutation_prob=0.1, max_attempts=10,
     if isinstance(random_state, int) and random_state > 0:
         np.random.seed(random_state)
 
+    if timing:
+        timings = []
+        curve = True
     if curve:
         fitness_curve = []
 
@@ -445,12 +498,19 @@ def genetic_alg(problem, pop_size=200, mutation_prob=0.1, max_attempts=10,
 
         if curve:
             fitness_curve.append(problem.get_fitness())
+        if timing:
+            timings.append(timeit.default_timer() - start_time)
 
     best_fitness = problem.get_maximize()*problem.get_fitness()
     best_state = problem.get_state()
 
     if curve:
-        return best_state, best_fitness, np.asarray(fitness_curve)
+        fitness_curve = np.asarray(fitness_curve)
+        if timing:
+            return best_state, best_fitness, np.hstack((np.asarray(timings).reshape(-1,1),
+                                                       fitness_curve.reshape(-1, 1)))
+        else:
+            return best_state, best_fitness, fitness_curve
 
     return best_state, best_fitness
 
@@ -478,6 +538,12 @@ def mimic(problem, pop_size=200, keep_pct=0.2, max_attempts=10,
         If :code:`False`, then no curve is stored.
         If :code:`True`, then a history of fitness values is provided as a
         third return value.
+    timing: bool, default: False
+        Boolean to return fitness values per wall clock time elapsed. If this
+        option is True, then curve will automatically be set to True. 
+        If :code: `False`, then only fitness scores are returned as an np.array
+        If :code:`True`, then a 2d array is returned with time in first col and 
+        fitness in second column.
     random_state: int, default: None
         If random_state is a positive integer, random_state is the seed used
         by np.random.seed(); otherwise, the random seed is not set.
@@ -531,6 +597,9 @@ def mimic(problem, pop_size=200, keep_pct=0.2, max_attempts=10,
     if isinstance(random_state, int) and random_state > 0:
         np.random.seed(random_state)
 
+    if timing:
+        timings = []
+        curve = True
     if curve:
         fitness_curve = []
 
@@ -573,11 +642,18 @@ def mimic(problem, pop_size=200, keep_pct=0.2, max_attempts=10,
 
         if curve:
             fitness_curve.append(problem.get_fitness())
+        if timing:
+            timings.append(timeit.default_timer() - start_time)
 
     best_fitness = problem.get_maximize()*problem.get_fitness()
     best_state = problem.get_state().astype(int)
 
     if curve:
-        return best_state, best_fitness, np.asarray(fitness_curve)
+        fitness_curve = np.asarray(fitness_curve)
+        if timing:
+            return best_state, best_fitness, np.hstack((np.asarray(timings).reshape(-1,1),
+                                                       fitness_curve.reshape(-1, 1)))
+        else:
+            return best_state, best_fitness, fitness_curve
 
     return best_state, best_fitness
