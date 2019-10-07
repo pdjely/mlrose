@@ -430,10 +430,6 @@ def genetic_alg(problem, pop_size=200, pop_breed_percent=0.75, elite_dreg_ratio=
     random_state: int, default: None
         If random_state is a positive integer, random_state is the seed used
         by np.random.seed(); otherwise, the random seed is not set.
-    state_fitness_callback: function taking five parameters, default: None
-        If specified, this callback will be invoked once per iteration.
-        Parameters are (iteration, max attempts reached?, current best state, current best fit, user callback data).
-        Return true to continue iterating, or false to stop.
 
     Returns
     -------
