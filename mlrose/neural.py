@@ -742,6 +742,8 @@ class BaseNeuralNetwork(six.with_metaclass(ABCMeta, BaseEstimator)):
         if 'mutation_prob' in in_params.keys():
             self.mutation_prob = in_params['mutation_prob']
 
+        return self
+
 
 class NeuralNetwork(BaseNeuralNetwork, ClassifierMixin):
     """Class for defining neural network classifier weights optimization
