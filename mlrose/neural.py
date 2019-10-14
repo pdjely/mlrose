@@ -390,6 +390,10 @@ class BaseNeuralNetwork(six.with_metaclass(ABCMeta, BaseEstimator)):
                  restarts=0,
                  schedule=GeomDecay(),
                  pop_size=200,
+                 pop_breed_percent=0.75, 
+                 elite_dreg_ratio=0.99,
+                 minimum_elites=0, 
+                 minimum_dregs=0,
                  mutation_prob=0.1,
                  max_attempts=10,
                  random_state=None,
@@ -415,6 +419,10 @@ class BaseNeuralNetwork(six.with_metaclass(ABCMeta, BaseEstimator)):
         self.restarts = restarts
         self.schedule = schedule
         self.pop_size = pop_size
+        self.pop_breed_percent= pop_breed_percent
+        self.elite_dreg_ratio= elite_dreg_ratio
+        self.minimum_elites= minimum_elites
+        self.minimum_dregs= minimum_dregs
         self.mutation_prob = mutation_prob
         self.max_attempts = max_attempts
         self.random_state = random_state
@@ -590,6 +598,10 @@ class BaseNeuralNetwork(six.with_metaclass(ABCMeta, BaseEstimator)):
                 fitted_weights, loss, fitness_curve = genetic_alg(
                     problem,
                     pop_size=self.pop_size,
+                    pop_breed_percent=self.pop_breed_percent, 
+                    elite_dreg_ratio=self.elite_dreg_ratio,
+                    minimum_elites=self.minimum_elites, 
+                    minimum_dregs=self.minimum_dregs,
                     mutation_prob=self.mutation_prob,
                     max_attempts=self.max_attempts if self.early_stopping else
                     self.max_iters,
@@ -844,6 +856,10 @@ class NeuralNetwork(BaseNeuralNetwork, ClassifierMixin):
                  restarts=0,
                  schedule=GeomDecay(),
                  pop_size=200,
+                 pop_breed_percent=0.75,
+                 elite_dreg_ratio=0.99,
+                 minimum_elites=0, 
+                 minimum_dregs=0, 
                  mutation_prob=0.1,
                  max_attempts=10,
                  random_state=None,
@@ -861,6 +877,10 @@ class NeuralNetwork(BaseNeuralNetwork, ClassifierMixin):
             restarts=restarts,
             schedule=schedule,
             pop_size=pop_size,
+            pop_breed_percent=pop_breed_percent,
+            elite_dreg_ratio=elite_dreg_ratio,
+            minimum_elites=minimum_elites, 
+            minimum_dregs=minimum_dregs, 
             mutation_prob=mutation_prob,
             max_attempts=max_attempts,
             random_state=random_state,
